@@ -1,0 +1,130 @@
+---
+import type { Work } from '../lib/catalog';
+
+type Props = {
+  work: Work;
+};
+
+const { work } = Astro.props;
+const hasModel = Boolean(work.modelGlb);
+---
+
+<section class="viewer-section" id="viewer" aria-labelledby="viewer-title" data-model-panel>
+  <div class="section">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Enhanced view</p>
+        <h2 id="viewer-title">Study image first, model second.</h2>
+      </div>
+      <p class="lede">The object record remains complete without JavaScript. When a web preview exists, the 3D model loads only after activation.</p>
+    </div>
+
+    <div class="viewer-grid">
+      <div>
+        <div class="model-stage" data-model-stage>
+          <img
+            src={work.posterImage}
+            alt={`Still poster fallback for ${work.title}`}
+            width="720"
+            height="900"
+            loading="eager"
+            decoding="async"
+            data-model-poster
+          />
+          {hasModel && (
+            <model-viewer
+              class="hidden"
+              data-model-viewer
+              src={work.modelGlb}
+              poster={work.posterImage}
+              alt={`Interactive 3D preview of ${work.title}`}
+              camera-controls
+              interaction-prompt="none"
+              touch-action="pan-y"
+              shadow-intensity="0.25"
+              exposure="0.9"
+              ar-status="not-presenting"
+            ></model-viewer>
+          )}
+        </div>
+        <div class="viewer-actions">
+          <button class="button" type="button" data-load-model disabled={!hasModel}>
+            {hasModel ? 'Load 3D preview' : '3D preview queued'}
+          </button>
+          {hasModel && <button class="button secondary" type="button" data-reset-model hidden>Reset view</button>}
+          {hasModel && <button class="button secondary" type="button" data-rotate-model hidden>Auto-rotate</button>}
+        </div>
+        <noscript>
+          <p class="fine">JavaScript is off, so the still poster image is shown instead of the interactive 3D preview.</p>
+        </noscript>
+      </div>
+
+      <aside class="viewer-copy" aria-label="3D preview details">
+        <p>{hasModel ? 'A lightweight GLB preview is available for close study. The original source asset is kept out of the page load path.' : 'This record does not yet have a web preview. The still image and metadata remain available.'}</p>
+        <dl class="detail-list">
+          <div>
+            <dt>Preview status</dt>
+            <dd>{work.modelStats}</dd>
+          </div>
+          <div>
+            <dt>Motion</dt>
+            <dd>Optional and disabled for reduced-motion preferences.</dd>
+          </div>
+          <div>
+            <dt>Fallback</dt>
+            <dd>Poster image, title, date, source, and metadata remain available without scripting.</dd>
+          </div>
+          <div>
+            <dt>Source file</dt>
+            <dd>{work.internalModelSource ? 'Preserved in the pipeline' : 'Not listed in public data'}</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  const panels = document.querySelectorAll('[data-model-panel]');
+
+  for (const panel of panels) {
+    const loadButton = panel.querySelector('[data-load-model]');
+    const resetButton = panel.querySelector('[data-reset-model]');
+    const rotateButton = panel.querySelector('[data-rotate-model]');
+    const poster = panel.querySelector('[data-model-poster]');
+    const viewer = panel.querySelector('[data-model-viewer]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!(loadButton instanceof HTMLButtonElement) || !viewer) continue;
+
+    loadButton.addEventListener('click', async () => {
+      loadButton.disabled = true;
+      loadButton.textContent = 'Loading preview';
+      await import('@google/model-viewer');
+      viewer.classList.remove('hidden');
+      poster?.classList.add('hidden');
+      resetButton?.removeAttribute('hidden');
+      if (!reduceMotion) rotateButton?.removeAttribute('hidden');
+      loadButton.textContent = '3D preview loaded';
+    });
+
+    resetButton?.addEventListener('click', () => {
+      viewer.setAttribute('camera-orbit', '0deg 75deg auto');
+      viewer.setAttribute('field-of-view', '30deg');
+      if ('jumpCameraToGoal' in viewer && typeof viewer.jumpCameraToGoal === 'function') {
+        viewer.jumpCameraToGoal();
+      }
+    });
+
+    rotateButton?.addEventListener('click', () => {
+      const rotating = viewer.hasAttribute('auto-rotate');
+      if (rotating) {
+        viewer.removeAttribute('auto-rotate');
+        rotateButton.textContent = 'Auto-rotate';
+      } else {
+        viewer.setAttribute('auto-rotate', '');
+        rotateButton.textContent = 'Stop rotation';
+      }
+    });
+  }
+</script>

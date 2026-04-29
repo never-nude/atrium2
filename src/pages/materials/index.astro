@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { facets, worksForMaterial } from '../../lib/catalog';
+
+const groups = facets.materials.map((facet) => ({ ...facet, works: worksForMaterial(facet.label) }));
+---
+
+<BaseLayout title="Materials" description="Browse Atrium.Earth sculpture records by material.">
+  <section class="page-shell" aria-labelledby="materials-title">
+    <p class="eyebrow">Materials</p>
+    <h1 id="materials-title">Marble, bronze, limestone, wood, and records still under review.</h1>
+    <p class="lede">Material labels are drawn from source fields when available and inferred conservatively from object titles when the field is empty.</p>
+  </section>
+
+  <section class="section" aria-labelledby="materials-groups">
+    <div class="facet-grid" id="materials-groups">
+      {groups.map((group) => (
+        <a class="facet-card" href={`#${group.value}`}>
+          <strong>{group.label}</strong>
+          <span>{group.count} works</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  {groups.map((group) => (
+    <section class="section" id={group.value} aria-labelledby={`${group.value}-title`}>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{group.count} works</p>
+          <h2 id={`${group.value}-title`}>{group.label}</h2>
+        </div>
+        <a class="text-link" href={`/museum/?materials=${group.value}`}>Open in museum</a>
+      </div>
+      <div class="rail">
+        {group.works.slice(0, 8).map((work) => <WorkCard work={work} />)}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

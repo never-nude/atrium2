@@ -49,13 +49,17 @@ export async function attachViewer(container, options) {
     controls.enablePan = false;
   }
 
+  let resizeRaf = 0;
   const resize = new ResizeObserver(() => {
-    const nextWidth = container.clientWidth;
-    const nextHeight = container.clientHeight;
-    if (!nextWidth || !nextHeight) return;
-    renderer.setSize(nextWidth, nextHeight, false);
-    camera.aspect = nextWidth / nextHeight;
-    camera.updateProjectionMatrix();
+    cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(() => {
+      const nextWidth = container.clientWidth;
+      const nextHeight = container.clientHeight;
+      if (!nextWidth || !nextHeight) return;
+      renderer.setSize(nextWidth, nextHeight, false);
+      camera.aspect = nextWidth / nextHeight;
+      camera.updateProjectionMatrix();
+    });
   });
   resize.observe(container);
 
@@ -89,6 +93,7 @@ export async function attachViewer(container, options) {
     dispose() {
       disposed = true;
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(resizeRaf);
       resize.disconnect();
       controls?.dispose();
       scene.traverse((node) => {

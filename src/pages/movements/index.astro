@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { facets, worksForFacet } from '../../lib/catalog';
+
+const groups = facets.movements.map((facet) => ({ ...facet, works: worksForFacet('movement', facet.label) }));
+---
+
+<BaseLayout title="Movements" description="Browse Atrium.Earth sculpture records by movement, period, or tradition facet.">
+  <section class="page-shell" aria-labelledby="movements-title">
+    <p class="eyebrow">Movements</p>
+    <h1 id="movements-title">Movements, periods, and traditions.</h1>
+    <p class="lede">The source corpus mixes named makers, regional traditions, and historical periods. This page keeps those groupings visible without turning them into competing URL structures.</p>
+  </section>
+
+  <section class="section" aria-labelledby="movement-groups">
+    <div class="facet-grid" id="movement-groups">
+      {groups.map((group) => (
+        <a class="facet-card" href={`#${group.value}`}>
+          <strong>{group.label}</strong>
+          <span>{group.count} works</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  {groups.map((group) => (
+    <section class="section" id={group.value} aria-labelledby={`${group.value}-title`}>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{group.count} works</p>
+          <h2 id={`${group.value}-title`}>{group.label}</h2>
+        </div>
+        <a class="text-link" href={`/museum/?movement=${group.value}`}>Open in museum</a>
+      </div>
+      <div class="rail">
+        {group.works.slice(0, 8).map((work) => <WorkCard work={work} />)}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

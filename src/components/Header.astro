@@ -1,0 +1,31 @@
+---
+type Props = {
+  currentPath: string;
+};
+
+const { currentPath } = Astro.props;
+const nav = [
+  ['Museum', '/museum/'],
+  ['Timeline', '/timeline/'],
+  ['Geography', '/geography/'],
+  ['Materials', '/materials/'],
+  ['Makers', '/makers/'],
+  ['Exhibitions', '/exhibitions/'],
+  ['About', '/about/'],
+];
+---
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Atrium.Earth home">
+    <span class="brand-mark" aria-hidden="true">A</span>
+    <span class="brand-text">
+      <span class="brand-name">Atrium.Earth</span>
+      <span class="brand-sub">Digital Sculpture Museum</span>
+    </span>
+  </a>
+  <nav class="top-nav" aria-label="Primary">
+    {nav.map(([label, href]) => (
+      <a href={href} aria-current={currentPath === href || currentPath.startsWith(href) ? 'page' : undefined}>{label}</a>
+    ))}
+  </nav>
+</header>

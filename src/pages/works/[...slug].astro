@@ -1,0 +1,132 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ModelPanel from '../../components/ModelPanel.astro';
+import TimelineStrip from '../../components/TimelineStrip.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { workBySlug, works, type Work } from '../../lib/catalog';
+
+export function getStaticPaths() {
+  return works.map((work) => ({
+    params: { slug: work.slug },
+    props: { work },
+  }));
+}
+
+type Props = {
+  work: Work;
+};
+
+const { work } = Astro.props;
+const related = work.relatedWorks.map((slug) => workBySlug(slug)).filter(Boolean) as Work[];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VisualArtwork',
+  name: work.title,
+  creator: work.maker ? { '@type': 'Person', name: work.maker } : undefined,
+  artMedium: work.medium || work.materials.join(', ') || undefined,
+  temporalCoverage: work.displayDate,
+  contentLocation: work.geography,
+  image: new URL(work.posterImage, Astro.site ?? 'https://atrium.earth').toString(),
+  url: new URL(work.route, Astro.site ?? 'https://atrium.earth').toString(),
+  isPartOf: { '@type': 'Museum', name: 'Atrium.Earth', url: 'https://atrium.earth/' },
+};
+---
+
+<BaseLayout title={work.title} description={work.description} image={work.posterImage} canonical={work.route} jsonLd={jsonLd}>
+  <section class="page-shell object-hero" aria-labelledby="object-title">
+    <div class="object-poster">
+      <img src={work.posterImage} alt={`Poster image for ${work.title}`} width="720" height="900" loading="eager" decoding="async" />
+    </div>
+
+    <div class="object-title">
+      <p class="eyebrow">{work.era}</p>
+      <h1 id="object-title">{work.title}</h1>
+      <p class="lede">{work.description}</p>
+      <dl class="detail-list">
+        <div>
+          <dt>Date</dt>
+          <dd>{work.displayDate}</dd>
+        </div>
+        <div>
+          <dt>Maker</dt>
+          <dd>{work.maker || 'Maker not yet recorded'}</dd>
+        </div>
+        <div>
+          <dt>Culture or region</dt>
+          <dd>{work.culture || work.geography}</dd>
+        </div>
+        <div>
+          <dt>Medium</dt>
+          <dd>{work.medium || work.materials.join(', ') || 'Medium not yet recorded'}</dd>
+        </div>
+        <div>
+          <dt>Dimensions</dt>
+          <dd>{work.dimensions || 'Dimensions not yet recorded'}</dd>
+        </div>
+        <div>
+          <dt>Source</dt>
+          <dd>{work.sourceMuseum || 'Source institution not yet recorded'}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <ModelPanel work={work} />
+
+  <section class="section" aria-labelledby="context-title">
+    <div class="content-grid">
+      <article class="prose">
+        <h2 id="context-title">Context</h2>
+        <p>{work.curatorialNote || work.description}</p>
+        <p>{work.curatorialNote ? 'This note comes from the imported source record or existing catalog text.' : 'No additional curatorial interpretation is attached yet. The record is intentionally limited to source metadata until reviewed writing is available.'}</p>
+
+        <h2>Place in Time</h2>
+        <TimelineStrip work={work} />
+        <p>{work.yearStart !== null ? `${work.title} is placed at ${work.displayDate} in the public record.` : 'This work remains visible in the collection without a forced date.'}</p>
+
+        <h2>Provenance and Collection History</h2>
+        <p>{work.provenance || 'Provenance or collection-history text has not been imported for this record.'}</p>
+      </article>
+
+      <aside class="aside-panel">
+        <h2>Source Data</h2>
+        <dl class="detail-list">
+          <div>
+            <dt>Rights</dt>
+            <dd>{work.rights}</dd>
+          </div>
+          <div>
+            <dt>Accession</dt>
+            <dd>{work.accession || 'Not recorded'}</dd>
+          </div>
+          <div>
+            <dt>Credit line</dt>
+            <dd>{work.creditLine || 'Not recorded'}</dd>
+          </div>
+          <div>
+            <dt>Source URL</dt>
+            <dd>{work.sourceUrl ? <a href={work.sourceUrl}>Open source record</a> : 'Not recorded'}</dd>
+          </div>
+        </dl>
+        <h3>Tags</h3>
+        <ul class="tag-list">
+          {work.tags.map((tag) => <li><span>{tag}</span></li>)}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section" aria-labelledby="related-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Related works</p>
+          <h2 id="related-title">Nearby records in the collection.</h2>
+        </div>
+      </div>
+      <div class="rail">
+        {related.map((item) => <WorkCard work={item} />)}
+      </div>
+    </section>
+  )}
+</BaseLayout>

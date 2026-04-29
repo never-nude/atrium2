@@ -1,0 +1,187 @@
+---
+import WorkCard from './WorkCard.astro';
+import type { Work } from '../lib/catalog';
+import { facets } from '../lib/catalog';
+
+type Props = {
+  works: Work[];
+};
+
+const { works } = Astro.props;
+const currentYear = new Date().getUTCFullYear();
+---
+
+<div data-museum-explorer>
+  <form class="museum-tools" aria-label="Collection search and filters" data-filter-form>
+    <div class="timeline-control" aria-label="Chronological range">
+      <div class="range-output" aria-live="polite">
+        <span data-from-label>3000 BCE</span>
+        <span data-to-label>Present</span>
+      </div>
+      <div class="range-row">
+        <label class="field">
+          <span>From</span>
+          <input type="range" min="-3000" max={currentYear} value="-3000" step="25" data-range-from />
+        </label>
+        <label class="field">
+          <span>To</span>
+          <input type="range" min="-3000" max={currentYear} value={currentYear} step="25" data-range-to />
+        </label>
+      </div>
+      <div class="timeline-labels" aria-hidden="true">
+        <span>3000 BCE</span>
+        <span>Present</span>
+      </div>
+    </div>
+
+    <div class="filter-grid">
+      <label class="field">
+        <span>Search</span>
+        <input type="search" placeholder="Title, maker, place, material" autocomplete="off" data-search />
+      </label>
+
+      <label class="field">
+        <span>Geography</span>
+        <select data-filter="geography">
+          <option value="">All geographies</option>
+          {facets.geography.map((facet) => <option value={facet.value}>{facet.label} ({facet.count})</option>)}
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Material</span>
+        <select data-filter="materials">
+          <option value="">All materials</option>
+          {facets.materials.map((facet) => <option value={facet.value}>{facet.label} ({facet.count})</option>)}
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Movement</span>
+        <select data-filter="movement">
+          <option value="">All movements</option>
+          {facets.movements.map((facet) => <option value={facet.value}>{facet.label} ({facet.count})</option>)}
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Maker</span>
+        <select data-filter="maker">
+          <option value="">All makers</option>
+          {facets.makers.map((facet) => <option value={facet.value}>{facet.label} ({facet.count})</option>)}
+        </select>
+      </label>
+    </div>
+
+    <div class="result-row">
+      <span data-result-count>{works.length} works</span>
+      <button class="button subtle" type="reset" data-reset-filters>Reset filters</button>
+    </div>
+  </form>
+
+  <div class="collection-grid" data-grid>
+    {works.map((work, index) => <WorkCard work={work} eager={index < 8} />)}
+  </div>
+</div>
+
+<script>
+  const explorers = document.querySelectorAll('[data-museum-explorer]');
+  const nowYear = new Date().getUTCFullYear();
+
+  function yearText(value) {
+    const year = Number(value);
+    if (!Number.isFinite(year) || year >= nowYear) return 'Present';
+    if (year < 0) return `${Math.abs(year)} BCE`;
+    return `${year} CE`;
+  }
+
+  for (const explorer of explorers) {
+    const form = explorer.querySelector('[data-filter-form]');
+    const cards = [...explorer.querySelectorAll('[data-work-card]')];
+    const search = explorer.querySelector('[data-search]');
+    const from = explorer.querySelector('[data-range-from]');
+    const to = explorer.querySelector('[data-range-to]');
+    const fromLabel = explorer.querySelector('[data-from-label]');
+    const toLabel = explorer.querySelector('[data-to-label]');
+    const count = explorer.querySelector('[data-result-count]');
+    const selects = [...explorer.querySelectorAll('[data-filter]')];
+
+    if (!(form instanceof HTMLFormElement) || !(search instanceof HTMLInputElement) || !(from instanceof HTMLInputElement) || !(to instanceof HTMLInputElement)) {
+      continue;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('q')) search.value = params.get('q') || '';
+    if (params.has('from')) from.value = params.get('from') || '-3000';
+    if (params.has('to')) to.value = params.get('to') || String(nowYear);
+    for (const select of selects) {
+      const key = select.getAttribute('data-filter');
+      if (key && params.has(key)) select.value = params.get(key) || '';
+    }
+
+    function syncUrl() {
+      const next = new URLSearchParams();
+      if (search.value.trim()) next.set('q', search.value.trim());
+      if (from.value !== '-3000') next.set('from', from.value);
+      if (to.value !== String(nowYear)) next.set('to', to.value);
+      for (const select of selects) {
+        const key = select.getAttribute('data-filter');
+        if (key && select.value) next.set(key, select.value);
+      }
+      const query = next.toString();
+      const url = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+      window.history.replaceState({}, '', url);
+    }
+
+    function matchesSelect(card, select) {
+      const key = select.getAttribute('data-filter');
+      const value = select.value;
+      if (!key || !value) return true;
+      if (key === 'materials') return (card.getAttribute('data-materials') || '').split(' ').includes(value);
+      return card.getAttribute(`data-${key}`) === value;
+    }
+
+    function apply() {
+      let fromYear = Number(from.value);
+      let toYear = Number(to.value);
+      if (fromYear > toYear) {
+        const swap = fromYear;
+        fromYear = toYear;
+        toYear = swap;
+      }
+
+      fromLabel.textContent = yearText(fromYear);
+      toLabel.textContent = yearText(toYear);
+
+      const query = search.value.trim().toLowerCase();
+      const usingCustomDate = fromYear !== -3000 || toYear !== nowYear;
+      let visible = 0;
+
+      for (const card of cards) {
+        const yearValue = card.getAttribute('data-year');
+        const year = yearValue ? Number(yearValue) : null;
+        const searchMatch = !query || (card.getAttribute('data-search') || '').includes(query);
+        const selectMatch = selects.every((select) => matchesSelect(card, select));
+        const dateMatch = year === null ? !usingCustomDate : year >= fromYear && year <= toYear;
+        const show = searchMatch && selectMatch && dateMatch;
+        card.classList.toggle('hidden', !show);
+        if (show) visible += 1;
+      }
+
+      count.textContent = `${visible} ${visible === 1 ? 'work' : 'works'}`;
+      syncUrl();
+    }
+
+    form.addEventListener('input', apply);
+    form.addEventListener('change', apply);
+    form.addEventListener('reset', () => {
+      window.setTimeout(() => {
+        from.value = '-3000';
+        to.value = String(nowYear);
+        apply();
+      }, 0);
+    });
+
+    apply();
+  }
+</script>

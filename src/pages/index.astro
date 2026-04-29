@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WorkCard from '../components/WorkCard.astro';
+import TimelineStrip from '../components/TimelineStrip.astro';
+import { collectionHighlights, facets, featuredWorkForDate, recentlyPrepared, works } from '../lib/catalog';
+
+const featured = featuredWorkForDate();
+const highlights = collectionHighlights();
+const recent = recentlyPrepared(8);
+const pathways = [
+  { label: 'Ancient Mediterranean', href: '/museum/?geography=mediterranean&from=-3000&to=500', note: 'Greek, Roman, and related classical records.' },
+  { label: 'Marble', href: '/museum/?materials=marble', note: 'Stone bodies, reliefs, fragments, and monuments.' },
+  { label: 'Bronze', href: '/museum/?materials=bronze', note: 'Cast figures and modern sculpture records.' },
+  { label: 'Renaissance', href: '/museum/?q=renaissance', note: 'European makers, workshop records, and devotional objects.' },
+  { label: 'Human Figure', href: '/museum/?q=figure', note: 'Bodies, portraits, torsos, saints, and studies.' },
+  { label: 'Asia', href: '/museum/?geography=asia', note: 'Objects grouped from Asian source records.' },
+];
+
+const description = 'A digital museum for sculpture across five millennia, built around static records, careful metadata, and optional 3D study.';
+---
+
+<BaseLayout
+  title="Atrium.Earth"
+  description={description}
+  image={featured.posterImage}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Museum',
+    name: 'Atrium.Earth',
+    url: 'https://atrium.earth/',
+    description,
+  }}
+>
+  <section class="home-hero" aria-labelledby="home-title">
+    <img src={featured.posterImage} alt="" width="720" height="900" loading="eager" decoding="async" />
+    <div class="band-inner hero-content">
+      <p class="eyebrow">Digital sculpture museum</p>
+      <h1 id="home-title">Atrium.Earth</h1>
+      <p class="lede">A static, searchable museum for sculpture records, still images, and optional 3D study across antiquity, Renaissance workshops, modern makers, and wider world traditions.</p>
+      <div class="hero-actions">
+        <a class="button" href="/museum/">Open the museum</a>
+        <a class="button secondary" href={featured.route}>Featured today</a>
+      </div>
+      <div class="hero-caption" aria-label="Featured work">
+        <span>{featured.title}</span>
+        <span>{featured.displayDate}</span>
+        <span>{featured.maker || featured.sourceMuseum || featured.geography}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="featured-title">
+    <div class="feature-block">
+      <a class="feature-block__media" href={featured.route} aria-label={`Open ${featured.title}`}>
+        <img src={featured.posterImage} alt={`Poster image for ${featured.title}`} width="720" height="900" loading="eager" decoding="async" />
+      </a>
+      <div>
+        <p class="eyebrow">Featured work of the day</p>
+        <h2 id="featured-title">{featured.title}</h2>
+        <p class="lede">{featured.description}</p>
+        <ul class="meta-line" aria-label="Featured work metadata">
+          <li>{featured.displayDate}</li>
+          <li>{featured.maker || 'Maker not yet recorded'}</li>
+          <li>{featured.geography}</li>
+          <li>{featured.materials[0] || 'Material pending'}</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="button" href={featured.route}>Read object record</a>
+          <a class="button secondary" href="/timeline/">View timeline</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="timeline-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Timeline</p>
+        <h2 id="timeline-title">From 3000 BCE to the present.</h2>
+      </div>
+      <p class="lede">Chronology is the spine of the museum. Dates remain visible as BCE or CE labels, never as negative numbers.</p>
+    </div>
+    <TimelineStrip />
+    <div class="stat-grid">
+      <div class="stat-card"><strong>{works.length}</strong><span>object records normalized</span></div>
+      <div class="stat-card"><strong>{facets.geography.length}</strong><span>geographic facets</span></div>
+      <div class="stat-card"><strong>{facets.materials.length}</strong><span>material facets</span></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pathways-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Curated entry points</p>
+        <h2 id="pathways-title">Start with a way of looking.</h2>
+      </div>
+    </div>
+    <div class="pathway-grid">
+      {pathways.map((pathway) => (
+        <a class="pathway" href={pathway.href}>
+          <strong>{pathway.label}</strong>
+          <span>{pathway.note}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="highlights-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Collection highlights</p>
+        <h2 id="highlights-title">Objects with strong entry records.</h2>
+      </div>
+      <a class="text-link" href="/museum/">Browse all works</a>
+    </div>
+    <div class="rail">
+      {highlights.slice(0, 8).map((work, index) => <WorkCard work={work} eager={index < 4} />)}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="recent-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Newly prepared records</p>
+        <h2 id="recent-title">Freshly surfaced from the corpus.</h2>
+      </div>
+    </div>
+    <div class="rail">
+      {recent.map((work) => <WorkCard work={work} />)}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="curator-title">
+    <div class="content-grid">
+      <div class="prose">
+        <p class="eyebrow">Curator note</p>
+        <h2 id="curator-title">Digital sculpture needs more than a viewer.</h2>
+        <p>Atrium keeps the record first: title, date, maker, place, material, source, rights, and a still image that loads without special hardware. The 3D layer is treated as study media, not as the whole page.</p>
+        <p>Where the source data is thin, the site says so. Interpretation can be added later; invented certainty cannot.</p>
+      </div>
+      <aside class="aside-panel">
+        <h3>Public standard</h3>
+        <p class="fine">Static HTML, canonical work routes, visible metadata, optional model loading, and legacy route preservation.</p>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

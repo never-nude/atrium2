@@ -1,0 +1,49 @@
+---
+import type { Work } from '../lib/catalog';
+import { publicDataset } from '../lib/catalog';
+
+type Props = {
+  work: Work;
+  eager?: boolean;
+};
+
+const { work, eager = false } = Astro.props;
+const dataset = publicDataset(work);
+const maker = work.maker || work.sourceMuseum || 'Maker not yet recorded';
+const material = work.materials[0] || 'Material pending';
+---
+
+<article
+  class="work-card"
+  data-work-card
+  data-search={dataset.search}
+  data-year={dataset.year}
+  data-era={dataset.era}
+  data-geography={dataset.geography}
+  data-maker={dataset.maker}
+  data-movement={dataset.movement}
+  data-materials={dataset.materials}
+>
+  <a href={work.route}>
+    <div class="work-card__image">
+      <img
+        src={work.thumbnailImage}
+        alt={`Poster image for ${work.title}`}
+        width="720"
+        height="900"
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+      <span class="work-card__badge">{work.era}</span>
+      <span class="work-card__date">{work.displayDate}</span>
+    </div>
+    <div class="work-card__body">
+      <h3>{work.title}</h3>
+      <p>{maker}</p>
+      <ul class="meta-line" aria-label="Object summary">
+        <li>{work.geography}</li>
+        <li>{material}</li>
+      </ul>
+    </div>
+  </a>
+</article>

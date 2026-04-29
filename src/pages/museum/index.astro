@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FacetExplorer from '../../components/FacetExplorer.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import TimelineStrip from '../../components/TimelineStrip.astro';
+import { collectionHighlights, facets, featuredWorkForDate, works } from '../../lib/catalog';
+
+const featured = featuredWorkForDate();
+const highlights = collectionHighlights().slice(0, 4);
+---
+
+<BaseLayout
+  title="Museum"
+  description="Browse the Atrium.Earth sculpture collection by time, geography, material, movement, maker, and search."
+  image={featured.posterImage}
+>
+  <section class="page-shell" aria-labelledby="museum-title">
+    <p class="eyebrow">Museum</p>
+    <h1 id="museum-title">The collection, structured for study.</h1>
+    <p class="lede">The museum keeps one canonical object model and lets every work belong to time, place, material, movement, and maker at once.</p>
+    <TimelineStrip />
+  </section>
+
+  <section class="section" aria-labelledby="featured-object">
+    <div class="feature-block">
+      <a class="feature-block__media" href={featured.route} aria-label={`Open ${featured.title}`}>
+        <img src={featured.posterImage} alt={`Poster image for ${featured.title}`} width="720" height="900" loading="eager" decoding="async" />
+      </a>
+      <div>
+        <p class="eyebrow">Highlighted object</p>
+        <h2 id="featured-object">{featured.title}</h2>
+        <p class="lede">{featured.description}</p>
+        <ul class="meta-line" aria-label="Highlighted object metadata">
+          <li>{featured.displayDate}</li>
+          <li>{featured.era}</li>
+          <li>{featured.geography}</li>
+          <li>{featured.materials[0] || 'Material pending'}</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="button" href={featured.route}>Open record</a>
+          <a class="button secondary" href="#collection-grid">Browse grid</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="collection-grid" aria-labelledby="collection-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Collection interface</p>
+        <h2 id="collection-title">Search, filter, and move through time.</h2>
+      </div>
+      <p class="lede">The grid is visible as HTML first. Filters, date range, and URL state are a small enhancement layered onto the static collection.</p>
+    </div>
+    <FacetExplorer works={works} />
+  </section>
+
+  <section class="section" aria-labelledby="discovery-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Discovery</p>
+        <h2 id="discovery-title">Related ways into the museum.</h2>
+      </div>
+    </div>
+    <div class="pathway-grid">
+      <a class="pathway" href="/timeline/"><strong>Chronology</strong><span>{facets.eras.length} era groupings, from ancient records to contemporary works.</span></a>
+      <a class="pathway" href="/geography/"><strong>Geography</strong><span>{facets.geography.length} regional facets derived from the source corpus.</span></a>
+      <a class="pathway" href="/materials/"><strong>Materials</strong><span>{facets.materials.length} material facets, including explicit and conservative inferred values.</span></a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="highlight-rail-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Object rail</p>
+        <h2 id="highlight-rail-title">Four strong starting points.</h2>
+      </div>
+    </div>
+    <div class="rail">
+      {highlights.map((work) => <WorkCard work={work} />)}
+    </div>
+  </section>
+</BaseLayout>

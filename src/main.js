@@ -47,12 +47,6 @@ function icon(nodes, className = 'icon') {
   return svg;
 }
 
-function formatBytes(bytes = 0) {
-  if (!bytes) return 'unknown';
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
 function periodName(work) {
   if (work.period) return work.period;
   const year = Number(work.year_sort);
@@ -84,6 +78,18 @@ function previewFor(work) {
   return previews[work.slug] || null;
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function posterUrl(work) {
+  return `/previews/posters/${work.slug}/poster.svg`;
+}
+
 async function loadViewer(container, options) {
   const { attachViewer } = await import('./viewer.js');
   return attachViewer(container, options);
@@ -98,19 +104,19 @@ function renderShell() {
       </a>
       <nav class="top-nav" aria-label="Primary">
         <a href="#collection">Collection</a>
-        <a href="#process">Process</a>
+        <a href="#rooms">Rooms</a>
       </nav>
     </header>
 
     <main>
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="eyebrow">A digital sculpture museum</p>
-          <h1 id="hero-title">Open-access sculpture, built for a faster web.</h1>
-          <p class="hero-lede">Atrium collects public 3D scans into a focused study room: light index pages, deliberate 3D loading, and source-aware records for every work.</p>
+          <p class="eyebrow">atrium.earth</p>
+          <h1 id="hero-title">Sculpture after dark.</h1>
+          <p class="hero-lede">A nocturnal gallery of marble bodies, bronze myths, saints, fragments, masks, and borrowed moonlight.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#collection">Explore collection</a>
-            <button class="button button-quiet" type="button" data-load-hero>Load David preview</button>
+            <a class="button button-primary" href="#collection">Enter collection</a>
+            <button class="button button-quiet" type="button" data-load-hero>Reveal David</button>
           </div>
         </div>
 
@@ -121,22 +127,22 @@ function renderShell() {
             <span class="poster-year">1501-1504</span>
           </div>
           <div class="viewer hero-viewer" data-hero-viewer hidden></div>
-          <p class="hero-stage__caption">Preview assets are generated from the archival scans and loaded only on request.</p>
+          <p class="hero-stage__caption">A single figure waits in the dark.</p>
         </div>
       </section>
 
       <section class="metrics" aria-label="Collection metrics">
         <div class="metric">
           <span class="metric__value">${catalog.length}</span>
-          <span class="metric__label">works cataloged</span>
+          <span class="metric__label">works in the gallery</span>
         </div>
         <div class="metric">
           <span class="metric__value">${Object.keys(previews).length}</span>
-          <span class="metric__label">web previews ready</span>
+          <span class="metric__label">lit for close study</span>
         </div>
         <div class="metric">
-          <span class="metric__value">0</span>
-          <span class="metric__label">index models loaded by default</span>
+          <span class="metric__value">6</span>
+          <span class="metric__label">rooms taking shape</span>
         </div>
       </section>
 
@@ -144,7 +150,7 @@ function renderShell() {
         <div class="section-head">
           <div>
             <p class="eyebrow">The collection</p>
-            <h2 id="collection-title">Browse without the weight.</h2>
+            <h2 id="collection-title">Choose a shadow.</h2>
           </div>
           <div class="search-wrap">
             <label class="sr-only" for="search">Search works</label>
@@ -163,32 +169,32 @@ function renderShell() {
         <div class="result-line" data-result-line></div>
         <div class="grid" data-grid></div>
         <div class="more-row">
-          <button class="button button-quiet" type="button" data-show-more>Show more</button>
+          <button class="button button-quiet" type="button" data-show-more>More works</button>
         </div>
       </section>
 
-      <section id="process" class="process" aria-labelledby="process-title">
+      <section id="rooms" class="process" aria-labelledby="process-title">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Pipeline</p>
-            <h2 id="process-title">The archival mesh stays archival.</h2>
+            <p class="eyebrow">Rooms</p>
+            <h2 id="process-title">Start with an atmosphere.</h2>
           </div>
         </div>
         <div class="process-grid">
           <article>
             <span data-process-icon-a></span>
-            <h3>Index</h3>
-            <p>Cards render from JSON and poster treatments. No WebGL grid tax.</p>
+            <h3>Antiquity</h3>
+            <p>Gods, athletes, votives, broken bodies, and long shadows.</p>
           </article>
           <article>
             <span data-process-icon-b></span>
-            <h3>Preview</h3>
-            <p>Selected scans become low-poly GLB derivatives for browser study.</p>
+            <h3>Renaissance</h3>
+            <p>Michelangelo, Donatello, saints, prisoners, and unfinished stone.</p>
           </article>
           <article>
             <span data-process-icon-c></span>
-            <h3>Source</h3>
-            <p>The original STL and GLB files remain referenced for provenance.</p>
+            <h3>Elsewhere</h3>
+            <p>Masks, posts, bowls, figures, and fragments from wider worlds.</p>
           </article>
         </div>
       </section>
@@ -196,7 +202,7 @@ function renderShell() {
 
     <footer class="site-footer">
       <span>atrium.earth</span>
-      <span>static, source-aware, fast first</span>
+      <span>dream gallery in progress</span>
     </footer>
 
     <div class="modal" data-modal hidden>
@@ -213,7 +219,7 @@ function renderShell() {
             <div><dt>Artist</dt><dd data-modal-artist></dd></div>
             <div><dt>Date</dt><dd data-modal-year></dd></div>
             <div><dt>Source</dt><dd data-modal-source></dd></div>
-            <div><dt>Preview</dt><dd data-modal-preview></dd></div>
+            <div><dt>Study</dt><dd data-modal-preview></dd></div>
           </dl>
         </aside>
       </div>
@@ -239,41 +245,23 @@ function renderShell() {
   }
 }
 
-function posterVars(work) {
-  const seed = [...work.slug].reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  const palettes = [
-    ['#8c4a30', '#e4bd89', '#284d63'],
-    ['#4e6255', '#d9a55a', '#5b3b54'],
-    ['#255b6b', '#e5b68b', '#893f35'],
-    ['#665c36', '#d7c9a1', '#315a7a'],
-    ['#7a3f42', '#d2a164', '#496a5c'],
-  ];
-  const p = palettes[seed % palettes.length];
-  return `--poster-a:${p[0]};--poster-b:${p[1]};--poster-c:${p[2]};`;
-}
-
 function renderCard(work) {
   const ready = previewFor(work);
   const card = document.createElement('article');
   card.className = 'work-card';
-  card.style.cssText = posterVars(work);
+  card.classList.toggle('has-preview', Boolean(ready));
 
   const period = periodName(work);
   card.innerHTML = `
-    <button class="work-card__poster" type="button" data-open-work="${work.slug}">
+    <button class="work-card__poster" type="button" data-open-work="${escapeHtml(work.slug)}">
+      <img src="${escapeHtml(posterUrl(work))}" alt="${escapeHtml(work.title)}" loading="lazy" decoding="async">
       <span class="work-card__index">${String(work.index).padStart(3, '0')}</span>
-      <span class="work-card__glyph">${work.title.slice(0, 1)}</span>
-      <span class="work-card__period">${period}</span>
+      <span class="work-card__period">${escapeHtml(period)}</span>
     </button>
     <div class="work-card__body">
       <div>
-        <h3>${work.title}</h3>
-        <p>${work.artist || work.source_institution || 'Open collection'}${work.year ? ` · ${work.year}` : ''}</p>
-      </div>
-      <div class="work-card__meta">
-        <span>${work.model.format.toUpperCase()}</span>
-        <span>${formatBytes(work.model.sizeBytes)}</span>
-        ${ready ? '<span class="ready">preview</span>' : '<span>source</span>'}
+        <h3>${escapeHtml(work.title)}</h3>
+        <p>${escapeHtml(work.artist || work.source_institution || 'Open collection')}${work.year ? ` · ${escapeHtml(work.year)}` : ''}</p>
       </div>
     </div>
   `;
@@ -303,7 +291,7 @@ async function loadHero() {
 
   if (!preview || viewer.dataset.loaded) return;
   button.disabled = true;
-  button.textContent = 'Loading preview';
+  button.textContent = 'Revealing';
   viewer.hidden = false;
   poster.hidden = true;
   await loadViewer(viewer, {
@@ -315,7 +303,7 @@ async function loadHero() {
     verticalBias: -0.35,
   });
   viewer.dataset.loaded = 'true';
-  button.textContent = 'Preview loaded';
+  button.textContent = 'David revealed';
 }
 
 async function openWork(slug) {
@@ -332,9 +320,7 @@ async function openWork(slug) {
   app.querySelector('[data-modal-artist]').textContent = work.artist || 'unknown';
   app.querySelector('[data-modal-year]').textContent = work.year || 'undated';
   app.querySelector('[data-modal-source]').textContent = work.source_institution || 'open source record';
-  app.querySelector('[data-modal-preview]').textContent = preview
-    ? `${formatBytes(preview.bytes)} optimized from ${formatBytes(preview.sourceBytes)}`
-    : 'queued';
+  app.querySelector('[data-modal-preview]').textContent = preview ? '3D preview ready' : 'Preview queued';
 
   modal.hidden = false;
   panel.focus();
