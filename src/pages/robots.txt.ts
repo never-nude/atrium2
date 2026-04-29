@@ -1,9 +1,11 @@
+import { absoluteUrl } from '../lib/urls';
+
 export function GET() {
   return new Response(
     [
       'User-agent: *',
       'Allow: /',
-      'Sitemap: https://atrium.earth/sitemap.xml',
+      `Sitemap: ${absoluteUrl('/sitemap.xml', import.meta.env.SITE || 'https://atrium.earth')}`,
       '',
     ].join('\n'),
     {

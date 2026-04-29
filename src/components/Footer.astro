@@ -1,9 +1,10 @@
 ---
+import { withBase } from '../lib/urls';
 ---
 
 <footer class="site-footer">
   <div class="site-footer__inner">
     <span>Atrium.Earth</span>
-    <span><a href="/museum/">Open the museum</a> / <a href="/about/">Source and rights</a></span>
+    <span><a href={withBase('/museum/')}>Open the museum</a> / <a href={withBase('/about/')}>Source and rights</a></span>
   </div>
 </footer>

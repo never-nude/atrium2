@@ -4,6 +4,7 @@ import FacetExplorer from '../../components/FacetExplorer.astro';
 import WorkCard from '../../components/WorkCard.astro';
 import TimelineStrip from '../../components/TimelineStrip.astro';
 import { collectionHighlights, facets, featuredWorkForDate, works } from '../../lib/catalog';
+import { withBase } from '../../lib/urls';
 
 const featured = featuredWorkForDate();
 const highlights = collectionHighlights().slice(0, 4);
@@ -23,8 +24,8 @@ const highlights = collectionHighlights().slice(0, 4);
 
   <section class="section" aria-labelledby="featured-object">
     <div class="feature-block">
-      <a class="feature-block__media" href={featured.route} aria-label={`Open ${featured.title}`}>
-        <img src={featured.posterImage} alt={`Poster image for ${featured.title}`} width="720" height="900" loading="eager" decoding="async" />
+      <a class="feature-block__media" href={withBase(featured.route)} aria-label={`Open ${featured.title}`}>
+        <img src={withBase(featured.posterImage)} alt={`Poster image for ${featured.title}`} width="720" height="900" loading="eager" decoding="async" />
       </a>
       <div>
         <p class="eyebrow">Highlighted object</p>
@@ -37,7 +38,7 @@ const highlights = collectionHighlights().slice(0, 4);
           <li>{featured.materials[0] || 'Material pending'}</li>
         </ul>
         <div class="hero-actions">
-          <a class="button" href={featured.route}>Open record</a>
+          <a class="button" href={withBase(featured.route)}>Open record</a>
           <a class="button secondary" href="#collection-grid">Browse grid</a>
         </div>
       </div>
@@ -63,9 +64,9 @@ const highlights = collectionHighlights().slice(0, 4);
       </div>
     </div>
     <div class="pathway-grid">
-      <a class="pathway" href="/timeline/"><strong>Chronology</strong><span>{facets.eras.length} era groupings, from ancient records to contemporary works.</span></a>
-      <a class="pathway" href="/geography/"><strong>Geography</strong><span>{facets.geography.length} regional facets derived from the source corpus.</span></a>
-      <a class="pathway" href="/materials/"><strong>Materials</strong><span>{facets.materials.length} material facets, including explicit and conservative inferred values.</span></a>
+      <a class="pathway" href={withBase('/timeline/')}><strong>Chronology</strong><span>{facets.eras.length} era groupings, from ancient records to contemporary works.</span></a>
+      <a class="pathway" href={withBase('/geography/')}><strong>Geography</strong><span>{facets.geography.length} regional facets derived from the source corpus.</span></a>
+      <a class="pathway" href={withBase('/materials/')}><strong>Materials</strong><span>{facets.materials.length} material facets, including explicit and conservative inferred values.</span></a>
     </div>
   </section>
 

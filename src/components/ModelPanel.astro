@@ -1,5 +1,6 @@
 ---
 import type { Work } from '../lib/catalog';
+import { withBase } from '../lib/urls';
 
 type Props = {
   work: Work;
@@ -23,7 +24,7 @@ const hasModel = Boolean(work.modelGlb);
       <div>
         <div class="model-stage" data-model-stage>
           <img
-            src={work.posterImage}
+            src={withBase(work.posterImage)}
             alt={`Still poster fallback for ${work.title}`}
             width="720"
             height="900"
@@ -35,8 +36,8 @@ const hasModel = Boolean(work.modelGlb);
             <model-viewer
               class="hidden"
               data-model-viewer
-              src={work.modelGlb}
-              poster={work.posterImage}
+              src={withBase(work.modelGlb)}
+              poster={withBase(work.posterImage)}
               alt={`Interactive 3D preview of ${work.title}`}
               camera-controls
               interaction-prompt="none"

@@ -1,6 +1,7 @@
 ---
 import type { Work } from '../lib/catalog';
 import { publicDataset } from '../lib/catalog';
+import { withBase } from '../lib/urls';
 
 type Props = {
   work: Work;
@@ -24,10 +25,10 @@ const material = work.materials[0] || 'Material pending';
   data-movement={dataset.movement}
   data-materials={dataset.materials}
 >
-  <a href={work.route}>
+  <a href={withBase(work.route)}>
     <div class="work-card__image">
       <img
-        src={work.thumbnailImage}
+        src={withBase(work.thumbnailImage)}
         alt={`Poster image for ${work.title}`}
         width="720"
         height="900"

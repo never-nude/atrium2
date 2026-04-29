@@ -4,6 +4,7 @@ import ModelPanel from '../../components/ModelPanel.astro';
 import TimelineStrip from '../../components/TimelineStrip.astro';
 import WorkCard from '../../components/WorkCard.astro';
 import { workBySlug, works, type Work } from '../../lib/catalog';
+import { absoluteUrl, withBase } from '../../lib/urls';
 
 export function getStaticPaths() {
   return works.map((work) => ({
@@ -26,8 +27,8 @@ const jsonLd = {
   artMedium: work.medium || work.materials.join(', ') || undefined,
   temporalCoverage: work.displayDate,
   contentLocation: work.geography,
-  image: new URL(work.posterImage, Astro.site ?? 'https://atrium.earth').toString(),
-  url: new URL(work.route, Astro.site ?? 'https://atrium.earth').toString(),
+  image: absoluteUrl(work.posterImage, String(Astro.site ?? 'https://atrium.earth')),
+  url: absoluteUrl(work.route, String(Astro.site ?? 'https://atrium.earth')),
   isPartOf: { '@type': 'Museum', name: 'Atrium.Earth', url: 'https://atrium.earth/' },
 };
 ---
@@ -35,7 +36,7 @@ const jsonLd = {
 <BaseLayout title={work.title} description={work.description} image={work.posterImage} canonical={work.route} jsonLd={jsonLd}>
   <section class="page-shell object-hero" aria-labelledby="object-title">
     <div class="object-poster">
-      <img src={work.posterImage} alt={`Poster image for ${work.title}`} width="720" height="900" loading="eager" decoding="async" />
+      <img src={withBase(work.posterImage)} alt={`Poster image for ${work.title}`} width="720" height="900" loading="eager" decoding="async" />
     </div>
 
     <div class="object-title">

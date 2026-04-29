@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import WorkCard from '../../components/WorkCard.astro';
 import { works } from '../../lib/catalog';
+import { withBase } from '../../lib/urls';
 
 const exhibitions = [
   {
@@ -39,7 +40,7 @@ const exhibitions = [
           <p class="eyebrow">Exhibition</p>
           <h2 id={`${exhibition.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-title`}>{exhibition.title}</h2>
         </div>
-        <a class="text-link" href={exhibition.href}>Open in museum</a>
+        <a class="text-link" href={withBase(exhibition.href)}>Open in museum</a>
       </div>
       <p class="lede">{exhibition.summary}</p>
       <div class="rail">

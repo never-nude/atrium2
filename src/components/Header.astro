@@ -1,4 +1,6 @@
 ---
+import { withBase } from '../lib/urls';
+
 type Props = {
   currentPath: string;
 };
@@ -16,7 +18,7 @@ const nav = [
 ---
 
 <header class="site-header">
-  <a class="brand" href="/" aria-label="Atrium.Earth home">
+  <a class="brand" href={withBase('/')} aria-label="Atrium.Earth home">
     <span class="brand-mark" aria-hidden="true">A</span>
     <span class="brand-text">
       <span class="brand-name">Atrium.Earth</span>
@@ -25,7 +27,7 @@ const nav = [
   </a>
   <nav class="top-nav" aria-label="Primary">
     {nav.map(([label, href]) => (
-      <a href={href} aria-current={currentPath === href || currentPath.startsWith(href) ? 'page' : undefined}>{label}</a>
+      <a href={withBase(href)} aria-current={currentPath === href || currentPath.startsWith(href) ? 'page' : undefined}>{label}</a>
     ))}
   </nav>
 </header>
