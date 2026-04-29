@@ -1,0 +1,98 @@
+{
+  "germanicus": {
+    "url": "/models/previews/germanicus/preview.glb",
+    "bytes": 252692,
+    "sourceBytes": 20001084,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 400020
+  },
+  "discobolus": {
+    "url": "/models/previews/discobolus/preview.glb",
+    "bytes": 252736,
+    "sourceBytes": 9988284,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 199764
+  },
+  "venus-de-milo": {
+    "url": "/models/previews/venus-de-milo/preview.glb",
+    "bytes": 252536,
+    "sourceBytes": 13713684,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 274272
+  },
+  "michelangelo/bacchus": {
+    "url": "/models/previews/michelangelo/bacchus/preview.glb",
+    "bytes": 252472,
+    "sourceBytes": 6000084,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 120000
+  },
+  "michelangelo/david": {
+    "url": "/models/previews/michelangelo/david/preview.glb",
+    "bytes": 288452,
+    "sourceBytes": 59997484,
+    "sourceFormat": "stl",
+    "faces": 16000,
+    "sourceFaces": 1199948
+  },
+  "michelangelo/moses": {
+    "url": "/models/previews/michelangelo/moses/preview.glb",
+    "bytes": 252596,
+    "sourceBytes": 6000084,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 120000
+  },
+  "dying-gaul": {
+    "url": "/models/previews/dying-gaul/preview.glb",
+    "bytes": 252712,
+    "sourceBytes": 20001584,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 400030
+  },
+  "apollo-belvedere": {
+    "url": "/models/previews/apollo-belvedere/preview.glb",
+    "bytes": 252560,
+    "sourceBytes": 14512784,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 290254
+  },
+  "athena-lemnia": {
+    "url": "/models/previews/athena-lemnia/preview.glb",
+    "bytes": 252836,
+    "sourceBytes": 19999884,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 399996
+  },
+  "rodin/the-thinker": {
+    "url": "/models/previews/rodin/the-thinker/preview.glb",
+    "bytes": 252584,
+    "sourceBytes": 41874184,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 837482
+  },
+  "laocoon": {
+    "url": "/models/previews/laocoon/preview.glb",
+    "bytes": 252188,
+    "sourceBytes": 20005084,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 400100
+  },
+  "capitoline-venus": {
+    "url": "/models/previews/capitoline-venus/preview.glb",
+    "bytes": 252596,
+    "sourceBytes": 20002184,
+    "sourceFormat": "stl",
+    "faces": 14000,
+    "sourceFaces": 400042
+  }
+}
