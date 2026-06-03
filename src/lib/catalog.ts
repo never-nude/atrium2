@@ -201,7 +201,10 @@ function parseYearRange(raw: RawWork): { start: number | null; end: number | nul
 }
 
 function eraFor(raw: RawWork): string {
-  const year = typeof raw.year_sort === 'number' && Number.isFinite(raw.year_sort) ? raw.year_sort : null;
+  // Prefer an explicit numeric sort; otherwise use a date parsed from the year text.
+  const sort = typeof raw.year_sort === 'number' && Number.isFinite(raw.year_sort) ? raw.year_sort : null;
+  const { start } = parseYearRange(raw);
+  const year = sort ?? start;
   const collection = clean(raw.collection);
 
   if (year !== null) {
@@ -213,9 +216,16 @@ function eraFor(raw: RawWork): string {
     return 'Contemporary';
   }
 
+  // No numeric date. Fall back only to facts the record actually carries — never invent a date.
   if (['michelangelo', 'donatello', 'verrocchio', 'lorenzi'].includes(collection)) return 'Renaissance';
   if (collection === 'bouchardon') return 'Early modern';
   if (collection === 'rodin') return 'Modern';
+  if (collection === 'assyrian' || collection === 'palmyra') return 'Ancient';
+
+  // Classical antiquities often carry a BCE / "Roman copy" date in the text but no year_sort.
+  const text = `${raw.title ?? ''} ${raw.year ?? ''} ${raw.note ?? ''}`.toLowerCase();
+  if (/\bbce\b|b\.c\.|hellenistic|roman copy|classical antiquity|\bantiquity\b/.test(text)) return 'Ancient';
+
   return 'Undated';
 }
 
@@ -492,15 +502,17 @@ export function timelinePercent(year: number | null): number {
 }
 
 export function publicDataset(work: Work): Record<string, string> {
+  // Canonical facet vocabulary, shared by cards (data-*) and the museum filter:
+  // era · place · material · maker · media.
   return {
     slug: work.slug,
     title: work.title,
     search: `${work.title} ${work.maker} ${work.displayDate} ${work.era} ${work.geography} ${work.materials.join(' ')} ${work.movement}`.toLowerCase(),
     year: String(clampTimelineYear(work.yearStart) ?? ''),
     era: facetValue(work.era),
-    geography: facetValue(work.geography),
+    place: facetValue(work.geography),
+    material: (work.materials.length ? work.materials : ['Material not yet recorded']).map(facetValue).join(' '),
     maker: facetValue(work.maker || 'Maker not yet recorded'),
-    movement: facetValue(work.movement),
-    materials: (work.materials.length ? work.materials : ['Material not yet recorded']).map(facetValue).join(' '),
+    media: work.hasPreview ? 'model' : 'still',
   };
 }
