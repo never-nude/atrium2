@@ -9,42 +9,44 @@ type Props = {
 };
 
 const { work, eager = false } = Astro.props;
-const dataset = publicDataset(work);
+const data = publicDataset(work);
 const maker = work.maker || work.sourceMuseum || 'Maker not yet recorded';
-const material = work.materials[0] || 'Material pending';
+const material = work.materials[0] || 'Material not yet recorded';
+const recordNo = `№ ${String(work.index).padStart(3, '0')}`;
+const alt = `${work.title}, ${maker}, ${material} — ${work.era}`;
 ---
 
 <article
   class="work-card"
   data-work-card
-  data-search={dataset.search}
-  data-year={dataset.year}
-  data-era={dataset.era}
-  data-geography={dataset.geography}
-  data-maker={dataset.maker}
-  data-movement={dataset.movement}
-  data-materials={dataset.materials}
+  data-search={data.search}
+  data-year={data.year}
+  data-era={data.era}
+  data-place={data.place}
+  data-material={data.material}
+  data-maker={data.maker}
+  data-media={data.media}
 >
   <a href={withBase(work.route)}>
     <div class="work-card__image">
       <img
         src={withBase(work.thumbnailImage)}
-        alt={`Poster image for ${work.title}`}
+        alt={alt}
         width="720"
         height="900"
         loading={eager ? 'eager' : 'lazy'}
         decoding="async"
       />
       <span class="work-card__badge">{work.era}</span>
-      <span class="work-card__date">{work.displayDate}</span>
+      <span class="work-card__date">{recordNo}</span>
     </div>
     <div class="work-card__body">
       <h3>{work.title}</h3>
-      <p>{maker}</p>
+      <p class="work-card__maker">{maker}</p>
       <ul class="meta-line" aria-label="Object summary">
-        <li>{work.geography}</li>
         <li>{material}</li>
       </ul>
+      {work.hasPreview && <span class="card-3d">3D study</span>}
     </div>
   </a>
 </article>

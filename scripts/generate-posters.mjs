@@ -5,13 +5,17 @@ const repoRoot = path.resolve(import.meta.dirname, '..');
 const catalog = JSON.parse(await readFile(path.join(repoRoot, 'src/data/catalog.json'), 'utf8'));
 const outRoot = path.join(repoRoot, 'public/previews/posters');
 
+// Night Atrium palette: deep navy base + a single warm raking light + a cool-chalk
+// figure. Subtle variation in navy depth and light hue (brass / gold / bronze) keeps
+// the grid alive without breaking the "one light, one stone" concept.
+// [base (page), field (wash), glow (the light), marble (the figure)]
 const palettes = [
-  ['#0b1028', '#293c77', '#ffb25f', '#fff0d1'],
-  ['#100817', '#5f2a6f', '#f46c8c', '#f8e0ff'],
-  ['#051918', '#116b67', '#d3ff8f', '#f4f6cf'],
-  ['#120c08', '#77401f', '#ffcf6b', '#fff1cf'],
-  ['#080c12', '#1e5b91', '#8be3ff', '#e9f7ff'],
-  ['#130c1f', '#30406f', '#cda7ff', '#f2e9ff'],
+  ['#0B1220', '#1B2942', '#E0A95B', '#EAF0F7'],
+  ['#0A101A', '#16233A', '#D9A44C', '#F1ECDE'],
+  ['#0C1322', '#20304E', '#ECBE78', '#EAF0F7'],
+  ['#091019', '#182843', '#C8924A', '#EDE7D8'],
+  ['#0B1220', '#1E2E4A', '#E6B36A', '#F2EEE4'],
+  ['#0A0F1A', '#1A2740', '#D9A44C', '#E9EEF6'],
 ];
 
 function seedFor(text) {

@@ -12,13 +12,13 @@ const highlights = collectionHighlights().slice(0, 4);
 
 <BaseLayout
   title="Museum"
-  description="Browse the Atrium.Earth sculpture collection by time, geography, material, movement, maker, and search."
+  description="Browse the Atrium.Earth sculpture collection by era, place, material, and maker."
   image={featured.posterImage}
 >
   <section class="page-shell" aria-labelledby="museum-title">
-    <p class="eyebrow">Museum</p>
+    <p class="eyebrow">The museum · {works.length} records</p>
     <h1 id="museum-title">The collection, structured for study.</h1>
-    <p class="lede">The museum keeps one canonical object model and lets every work belong to time, place, material, movement, and maker at once.</p>
+    <p class="lede">The museum keeps one canonical object record and lets every work belong to era, place, material, and maker at once.</p>
     <TimelineStrip />
   </section>
 
@@ -28,14 +28,14 @@ const highlights = collectionHighlights().slice(0, 4);
         <img src={withBase(featured.posterImage)} alt={`Poster image for ${featured.title}`} width="720" height="900" loading="eager" decoding="async" />
       </a>
       <div>
-        <p class="eyebrow">Highlighted object</p>
+        <p class="eyebrow">Featured object</p>
         <h2 id="featured-object">{featured.title}</h2>
         <p class="lede">{featured.description}</p>
-        <ul class="meta-line" aria-label="Highlighted object metadata">
+        <ul class="meta-line" aria-label="Featured object metadata">
           <li>{featured.displayDate}</li>
           <li>{featured.era}</li>
           <li>{featured.geography}</li>
-          <li>{featured.materials[0] || 'Material pending'}</li>
+          <li>{featured.materials[0] || 'Material not yet recorded'}</li>
         </ul>
         <div class="hero-actions">
           <a class="button" href={withBase(featured.route)}>Open record</a>
@@ -48,10 +48,10 @@ const highlights = collectionHighlights().slice(0, 4);
   <section class="section" id="collection-grid" aria-labelledby="collection-title">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Collection interface</p>
-        <h2 id="collection-title">Search, filter, and move through time.</h2>
+        <p class="eyebrow">Browse</p>
+        <h2 id="collection-title">Search, filter, and move by era.</h2>
       </div>
-      <p class="lede">The grid is visible as HTML first. Filters, date range, and URL state are a small enhancement layered onto the static collection.</p>
+      <p class="lede">The grid is visible as HTML first. Filters and URL state are a small enhancement layered onto the static collection.</p>
     </div>
     <FacetExplorer works={works} />
   </section>
@@ -64,9 +64,9 @@ const highlights = collectionHighlights().slice(0, 4);
       </div>
     </div>
     <div class="pathway-grid">
-      <a class="pathway" href={withBase('/timeline/')}><strong>Chronology</strong><span>{facets.eras.length} era groupings, from ancient records to contemporary works.</span></a>
-      <a class="pathway" href={withBase('/geography/')}><strong>Geography</strong><span>{facets.geography.length} regional facets derived from the source corpus.</span></a>
-      <a class="pathway" href={withBase('/materials/')}><strong>Materials</strong><span>{facets.materials.length} material facets, including explicit and conservative inferred values.</span></a>
+      <a class="pathway" href={withBase('/timeline/')}><strong>Era</strong><span>{facets.eras.length} era groupings, from ancient records to modern works.</span></a>
+      <a class="pathway" href={withBase('/geography/')}><strong>Place</strong><span>{facets.geography.length} places derived from the source corpus.</span></a>
+      <a class="pathway" href={withBase('/materials/')}><strong>Material</strong><span>{facets.materials.length} materials, including explicit and conservative inferred values.</span></a>
     </div>
   </section>
 

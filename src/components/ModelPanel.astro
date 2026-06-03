@@ -10,121 +10,275 @@ const { work } = Astro.props;
 const hasModel = Boolean(work.modelGlb);
 ---
 
-<section class="viewer-section" id="viewer" aria-labelledby="viewer-title" data-model-panel>
+<section class="viewer-section" id="viewer" aria-labelledby="viewer-title" data-viewer>
   <div class="section">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Enhanced view</p>
-        <h2 id="viewer-title">Study image first, model second.</h2>
+        <p class="eyebrow">Examine in 3D</p>
+        <h2 id="viewer-title">Turn it around. Look closely.</h2>
       </div>
-      <p class="lede">The object record remains complete without JavaScript. When a web preview exists, the 3D model loads only after activation.</p>
+      <p class="lede">Drag to spin the sculpture, scroll to move in, and use the dials to change the light and surface. The photo loads first — the 3D model loads when you ask for it.</p>
     </div>
 
     <div class="viewer-grid">
       <div>
-        <div class="model-stage" data-model-stage>
+        <div class="model-stage" data-stage data-glb={hasModel ? withBase(work.modelGlb) : ''}>
+          <span class="stage-corner stage-corner--tl" aria-hidden="true"></span>
+          <span class="stage-corner stage-corner--tr" aria-hidden="true"></span>
+          <span class="stage-corner stage-corner--bl" aria-hidden="true"></span>
+          <span class="stage-corner stage-corner--br" aria-hidden="true"></span>
+          <span class="stage-tag" aria-hidden="true">{hasModel ? '3D MODEL · READY' : 'PHOTOGRAPH'}</span>
+
           <img
             src={withBase(work.posterImage)}
-            alt={`Still poster fallback for ${work.title}`}
+            alt={`${work.title} — still image`}
             width="720"
             height="900"
-            loading="eager"
+            loading="lazy"
             decoding="async"
-            data-model-poster
+            data-poster
           />
+
           {hasModel && (
-            <model-viewer
-              class="hidden"
-              data-model-viewer
-              src={withBase(work.modelGlb)}
-              poster={withBase(work.posterImage)}
-              alt={`Interactive 3D preview of ${work.title}`}
-              camera-controls
-              interaction-prompt="none"
-              touch-action="pan-y"
-              shadow-intensity="0.25"
-              exposure="0.9"
-              ar-status="not-presenting"
-            ></model-viewer>
+            <button class="stage-activate" type="button" data-activate>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path d="M12 2 4 6.5v9L12 20l8-4.5v-9L12 2z" />
+                <path d="M4 6.5 12 11l8-4.5M12 11v9" />
+              </svg>
+              Examine in 3D
+            </button>
           )}
+          <p class="stage-loading" data-loading hidden>Loading the model…</p>
         </div>
-        <div class="viewer-actions">
-          <button class="button" type="button" data-load-model disabled={!hasModel}>
-            {hasModel ? 'Load 3D preview' : '3D preview queued'}
-          </button>
-          {hasModel && <button class="button secondary" type="button" data-reset-model hidden>Reset view</button>}
-          {hasModel && <button class="button secondary" type="button" data-rotate-model hidden>Auto-rotate</button>}
-        </div>
+
+        {hasModel && (
+          <div class="viewer-hud" data-hud hidden>
+            <div class="hud-control">
+              <label for={`b-${work.id}`}>Brightness <span class="hud-read" data-read-brightness>100%</span></label>
+              <input id={`b-${work.id}`} type="range" min="40" max="200" step="1" value="100" data-brightness />
+            </div>
+            <div class="hud-control">
+              <label for={`f-${work.id}`}>Finish <span class="hud-ends">matte → polished</span></label>
+              <input id={`f-${work.id}`} type="range" min="0" max="100" step="1" value="80" data-finish />
+            </div>
+            <div class="hud-control hud-control--row">
+              <label class="hud-switch">
+                <input type="checkbox" data-wireframe />
+                <span>Wireframe</span>
+              </label>
+              <button class="hud-reset" type="button" data-reset>Reset view</button>
+            </div>
+          </div>
+        )}
+
+        <p class="stage-hint fine" data-hint hidden>Drag to rotate · scroll or pinch to zoom · double-tap to reset</p>
+
         <noscript>
-          <p class="fine">JavaScript is off, so the still poster image is shown instead of the interactive 3D preview.</p>
+          <p class="fine">The still photo is shown above. Turn on JavaScript to spin the 3D model and adjust the light.</p>
         </noscript>
       </div>
 
-      <aside class="viewer-copy" aria-label="3D preview details">
-        <p>{hasModel ? 'A lightweight GLB preview is available for close study. The original source asset is kept out of the page load path.' : 'This record does not yet have a web preview. The still image and metadata remain available.'}</p>
-        <dl class="detail-list">
-          <div>
-            <dt>Preview status</dt>
-            <dd>{work.modelStats}</dd>
-          </div>
-          <div>
-            <dt>Motion</dt>
-            <dd>Optional and disabled for reduced-motion preferences.</dd>
-          </div>
-          <div>
-            <dt>Fallback</dt>
-            <dd>Poster image, title, date, source, and metadata remain available without scripting.</dd>
-          </div>
-          <div>
-            <dt>Source file</dt>
-            <dd>{work.internalModelSource ? 'Preserved in the pipeline' : 'Not listed in public data'}</dd>
-          </div>
-        </dl>
+      <aside class="viewer-copy" aria-label="About this view">
+        {hasModel ? (
+          <>
+            <h3>What you can do</h3>
+            <ul class="how-list">
+              <li><strong>Spin it.</strong> Drag in any direction to see every side.</li>
+              <li><strong>Move in.</strong> Scroll or pinch to look at the detail up close.</li>
+              <li><strong>Change the light.</strong> Brighten or dim to read the surface.</li>
+              <li><strong>Matte or polished.</strong> Slide the finish to see the form under different surfaces.</li>
+              <li><strong>Wireframe.</strong> Switch it on to see how the shape is built.</li>
+            </ul>
+            <p class="fine">Built from a 3D scan of the sculpture. The photo and the facts stay on the page even if you never open the model.</p>
+          </>
+        ) : (
+          <>
+            <h3>Photograph only, for now</h3>
+            <p>A 3D model of this piece hasn’t been prepared yet, so the page shows the still image and its record. More sculptures get the full 3D treatment over time.</p>
+          </>
+        )}
       </aside>
     </div>
   </div>
 </section>
 
 <script>
-  const panels = document.querySelectorAll('[data-model-panel]');
+  type Viewer = {
+    setBrightness: (pct: number) => void;
+    setFinish: (pct: number) => void;
+    setWireframe: (on: boolean) => void;
+    reset: () => void;
+    dispose: () => void;
+  };
 
-  for (const panel of panels) {
-    const loadButton = panel.querySelector('[data-load-model]');
-    const resetButton = panel.querySelector('[data-reset-model]');
-    const rotateButton = panel.querySelector('[data-rotate-model]');
-    const poster = panel.querySelector('[data-model-poster]');
-    const viewer = panel.querySelector('[data-model-viewer]');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  async function buildViewer(stage: HTMLElement, glb: string): Promise<Viewer> {
+    const THREE = await import('three');
+    const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
+    const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (!(loadButton instanceof HTMLButtonElement) || !viewer) continue;
+    let width = stage.clientWidth || 600;
+    let height = stage.clientHeight || 600;
 
-    loadButton.addEventListener('click', async () => {
-      loadButton.disabled = true;
-      loadButton.textContent = 'Loading preview';
-      await import('@google/model-viewer');
-      viewer.classList.remove('hidden');
-      poster?.classList.add('hidden');
-      resetButton?.removeAttribute('hidden');
-      if (!reduceMotion) rotateButton?.removeAttribute('hidden');
-      loadButton.textContent = '3D preview loaded';
-    });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(width, height);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.classList.add('viewer-canvas');
+    stage.appendChild(renderer.domElement);
 
-    resetButton?.addEventListener('click', () => {
-      viewer.setAttribute('camera-orbit', '0deg 75deg auto');
-      viewer.setAttribute('field-of-view', '30deg');
-      if ('jumpCameraToGoal' in viewer && typeof viewer.jumpCameraToGoal === 'function') {
-        viewer.jumpCameraToGoal();
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.01, 200);
+
+    // Neutral image-based lighting so PBR materials read correctly (model-viewer does this for us;
+    // raw three.js renders metallic/rough surfaces near-black without an environment).
+    const { RoomEnvironment } = await import('three/examples/jsm/environments/RoomEnvironment.js');
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    // Neutral museum lighting: soft sky/ground + a warm key and a cool fill.
+    scene.add(new THREE.HemisphereLight(0xeaf0f7, 0x0b1220, 0.7));
+    const key = new THREE.DirectionalLight(0xfff1dd, 2.4);
+    key.position.set(2.5, 4, 3);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x9fb6d6, 0.55);
+    fill.position.set(-3, 1.2, -2.5);
+    scene.add(fill);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = false;
+    controls.rotateSpeed = 0.9;
+    controls.zoomSpeed = 0.8;
+
+    const loader = new GLTFLoader();
+    const gltf = await loader.loadAsync(glb);
+    const model = gltf.scene;
+
+    const materials: any[] = [];
+    model.traverse((obj: any) => {
+      if (obj.isMesh && obj.material) {
+        const list = Array.isArray(obj.material) ? obj.material : [obj.material];
+        for (const m of list) {
+          if (!('roughness' in m)) continue;
+          m.userData.baseRoughness = typeof m.roughness === 'number' ? m.roughness : 0.85;
+          materials.push(m);
+        }
       }
     });
 
-    rotateButton?.addEventListener('click', () => {
-      const rotating = viewer.hasAttribute('auto-rotate');
-      if (rotating) {
-        viewer.removeAttribute('auto-rotate');
-        rotateButton.textContent = 'Auto-rotate';
-      } else {
-        viewer.setAttribute('auto-rotate', '');
-        rotateButton.textContent = 'Stop rotation';
+    // Source meshes arrive in wildly different units (mm, m, …). Normalize to ~1 unit and
+    // center, so framing and clip planes are scale-independent.
+    let box = new THREE.Box3().setFromObject(model);
+    let size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    model.scale.setScalar(1 / maxDim);
+    box = new THREE.Box3().setFromObject(model);
+    size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+    scene.add(model);
+
+    const dist = (1 / (2 * Math.tan((camera.fov * Math.PI) / 360))) * 1.35;
+    camera.near = 0.01;
+    camera.far = 100;
+    camera.position.set(dist * 0.55, dist * 0.34, dist * 0.9);
+    camera.updateProjectionMatrix();
+    controls.target.set(0, 0, 0);
+    controls.minDistance = 0.5;
+    controls.maxDistance = 8;
+    controls.update();
+
+    // Faint grid floor — the "instrument" motif, just under the object.
+    const grid = new THREE.GridHelper(4, 24, 0x3a557a, 0x22324a);
+    grid.position.y = -size.y / 2 - 0.001;
+    (grid.material as any).transparent = true;
+    (grid.material as any).opacity = 0.18;
+    scene.add(grid);
+    console.log('[viewer]', JSON.stringify({ maxDim: +maxDim.toFixed(3), sizeY: +size.y.toFixed(3), dist: +dist.toFixed(2) }));
+
+    const home = { pos: camera.position.clone(), tgt: controls.target.clone() };
+
+    let raf = 0;
+    function frame() {
+      controls.update();
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(frame);
+    }
+    frame();
+
+    const ro = new ResizeObserver(() => {
+      width = stage.clientWidth;
+      height = stage.clientHeight;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    });
+    ro.observe(stage);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) cancelAnimationFrame(raf);
+      else frame();
+    });
+
+    return {
+      setBrightness: (pct) => { renderer.toneMappingExposure = pct / 100; },
+      setFinish: (pct) => { for (const m of materials) { m.roughness = pct / 100; m.needsUpdate = true; } },
+      setWireframe: (on) => { for (const m of materials) { m.wireframe = on; } },
+      reset: () => { camera.position.copy(home.pos); controls.target.copy(home.tgt); controls.update(); },
+      dispose: () => { cancelAnimationFrame(raf); ro.disconnect(); renderer.dispose(); renderer.domElement.remove(); },
+    };
+  }
+
+  for (const section of document.querySelectorAll('[data-viewer]')) {
+    const stage = section.querySelector('[data-stage]') as HTMLElement | null;
+    const activate = section.querySelector('[data-activate]') as HTMLButtonElement | null;
+    if (!stage || !activate) continue;
+    const glb = stage.getAttribute('data-glb') || '';
+    const poster = stage.querySelector('[data-poster]') as HTMLElement | null;
+    const loading = stage.querySelector('[data-loading]') as HTMLElement | null;
+    const hud = section.querySelector('[data-hud]') as HTMLElement | null;
+    const hint = section.querySelector('[data-hint]') as HTMLElement | null;
+
+    activate.addEventListener('click', async () => {
+      if (!glb) return;
+      activate.hidden = true;
+      if (loading) loading.hidden = false;
+      try {
+        const viewer = await buildViewer(stage, glb);
+        if (loading) loading.hidden = true;
+        if (poster) poster.style.opacity = '0';
+        stage.classList.add('is-live');
+        if (hud) hud.hidden = false;
+        if (hint) hint.hidden = false;
+
+        const brightness = hud?.querySelector('[data-brightness]') as HTMLInputElement | null;
+        const finish = hud?.querySelector('[data-finish]') as HTMLInputElement | null;
+        const wire = hud?.querySelector('[data-wireframe]') as HTMLInputElement | null;
+        const reset = hud?.querySelector('[data-reset]') as HTMLButtonElement | null;
+        const readB = hud?.querySelector('[data-read-brightness]') as HTMLElement | null;
+
+        if (brightness) {
+          viewer.setBrightness(Number(brightness.value));
+          brightness.addEventListener('input', () => {
+            viewer.setBrightness(Number(brightness.value));
+            if (readB) readB.textContent = `${brightness.value}%`;
+          });
+        }
+        if (finish) {
+          viewer.setFinish(Number(finish.value));
+          finish.addEventListener('input', () => viewer.setFinish(Number(finish.value)));
+        }
+        if (wire) wire.addEventListener('change', () => viewer.setWireframe(wire.checked));
+        if (reset) reset.addEventListener('click', () => viewer.reset());
+        stage.addEventListener('dblclick', () => viewer.reset());
+      } catch (err) {
+        if (loading) { loading.hidden = false; loading.textContent = 'This browser could not open the 3D model. The still photo is shown instead.'; }
+        if (poster) poster.style.opacity = '1';
+        activate.hidden = false;
       }
     });
   }
