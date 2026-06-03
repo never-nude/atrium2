@@ -1,5 +1,6 @@
 import rawCatalog from '../data/catalog.json';
 import rawPreviews from '../data/previews.json';
+import rawRenders from '../data/renders.json';
 
 type RawWork = {
   slug: string;
@@ -84,6 +85,7 @@ export type Facet = {
 
 const rawWorks = rawCatalog as RawWork[];
 const previewMap = rawPreviews as Record<string, Preview>;
+const renderSet = new Set(rawRenders as string[]);
 
 const makerCollections = new Set(['michelangelo', 'donatello', 'verrocchio', 'lorenzi', 'bouchardon', 'rodin']);
 
@@ -386,7 +388,7 @@ function normalize(raw: RawWork, fallbackIndex: number): Work {
     tags: [...new Set(tags)],
     relatedWorks: [],
     posterImage: `/previews/posters/${raw.slug}/poster.svg`,
-    thumbnailImage: `/previews/posters/${raw.slug}/poster.svg`,
+    thumbnailImage: renderSet.has(raw.slug) ? `/previews/renders/${raw.slug}/thumb.webp` : `/previews/posters/${raw.slug}/poster.svg`,
     modelGlb: preview?.url || '',
     modelStats: modelStatsFor(preview, raw),
     featuredWeight: Math.max(1, 5 - Number(raw.tier || 3)),
