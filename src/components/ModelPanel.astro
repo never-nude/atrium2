@@ -115,6 +115,7 @@ const hasModel = Boolean(work.modelGlb);
     const THREE = await import('three');
     const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
     const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
+    const { MeshoptDecoder } = await import('three/examples/jsm/libs/meshopt_decoder.module.js');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let width = stage.clientWidth || 600;
@@ -155,6 +156,7 @@ const hasModel = Boolean(work.modelGlb);
     controls.zoomSpeed = 0.8;
 
     const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
     const gltf = await loader.loadAsync(glb);
     const model = gltf.scene;
 
